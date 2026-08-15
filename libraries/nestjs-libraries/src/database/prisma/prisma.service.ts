@@ -17,30 +17,65 @@ import {
  *
  * See token-encryption.ts for the envelope-encryption design.
  */
+// Depth cap. Prisma results nest through includes, and a bounded walk is enough
+// for every real shape while guaranteeing termination on anything unexpected.
+const MAX_DEPTH = 8;
+
 async function mapEncryptedFields(
   value: unknown,
-  transform: (v: unknown) => Promise<unknown>
+  transform: (v: unknown) => Promise<unknown>,
+  depth = 0
 ): Promise<unknown> {
-  if (Array.isArray(value)) {
-    return Promise.all(value.map((item) => mapEncryptedFields(item, transform)));
+  if (depth > MAX_DEPTH || value === null || value === undefined) {
+    return value;
   }
 
-  if (!value || typeof value !== 'object') {
+  if (Array.isArray(value)) {
+    return Promise.all(
+      value.map((item) => mapEncryptedFields(item, transform, depth + 1))
+    );
+  }
+
+  if (typeof value !== 'object') {
+    return value;
+  }
+
+  // Leave non-plain objects alone: Date, Buffer and Decimal have no credential
+  // fields and walking them wastes time or mangles them.
+  if (
+    value instanceof Date ||
+    Buffer.isBuffer(value) ||
+    typeof (value as { toISOString?: unknown }).toISOString === 'function'
+  ) {
     return value;
   }
 
   const record = value as Record<string, unknown>;
 
-  for (const field of ENCRYPTED_INTEGRATION_FIELDS) {
-    if (field in record) {
-      const current = record[field];
-      // Prisma update payloads can be `{ set: value }` rather than a bare value.
+  for (const [key, current] of Object.entries(record)) {
+    if ((ENCRYPTED_INTEGRATION_FIELDS as readonly string[]).includes(key)) {
+      // Prisma write payloads can be `{ set: value }` rather than a bare value.
       if (current && typeof current === 'object' && 'set' in (current as object)) {
         const wrapper = current as Record<string, unknown>;
         wrapper.set = await transform(wrapper.set);
       } else {
-        record[field] = await transform(current);
+        record[key] = await transform(current);
       }
+      continue;
+    }
+
+    // RECURSE. This is the part that was missing.
+    //
+    // The publish path loads the integration as a NESTED RELATION on a post
+    // (`post.integration`, via include), so the Prisma operation is on the POST
+    // model, not the integration model. A model-scoped extension never fires,
+    // and the token reaches the social provider as raw ciphertext — which
+    // presents as LinkedIn returning INVALID_ACCESS_TOKEN and looks for all the
+    // world like a dead credential. Found on the 2026-08-15 spike, only because
+    // the decrypted token was probed against LinkedIn directly and came back
+    // valid.
+    if (current && typeof current === 'object') {
+      record[key] = await mapEncryptedFields(current, transform, depth + 1);
     }
   }
 
@@ -50,7 +85,14 @@ async function mapEncryptedFields(
 function buildEncryptedClient(client: PrismaClient) {
   return client.$extends({
     query: {
-      integration: {
+      // $allModels, not just `integration`.
+      //
+      // Scoping this to the integration model was a real bug: the publish path
+      // reads the token through `post.integration` (a nested include), which is
+      // a POST operation, so the extension never fired and ciphertext was handed
+      // to the social provider. Any model can return an integration through a
+      // relation, so every model has to be covered.
+      $allModels: {
         async $allOperations({ operation, args, query }: any) {
           // Encrypt on the way in.
           if (args?.data) {

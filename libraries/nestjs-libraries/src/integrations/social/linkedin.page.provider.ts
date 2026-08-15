@@ -123,7 +123,15 @@ export class LinkedinPageProvider
   override async generateAuthUrl() {
     const state = makeId(6);
     const codeVerifier = makeId(30);
-    const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&prompt=none&client_id=${
+    // PrimusPost fork: `prompt=none` removed — same defect as the personal
+    // provider, same fix. Upstream issue #1580. See linkedin.provider.ts for the
+    // full explanation.
+    //
+    // Page connect is NOT reachable for us yet (it needs LinkedIn's Community
+    // Management API, which is not self-serve — see this file's scopes and
+    // docs/engineering/28 D-4 in the PrimusPost repo), but leaving a known-broken
+    // auth URL here would just cost someone a debugging session later.
+    const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${
       process.env.LINKEDIN_CLIENT_ID
     }&redirect_uri=${encodeURIComponent(
       `${process.env.FRONTEND_URL}/integrations/social/linkedin-page`

@@ -31,15 +31,24 @@ export class LinkedinProvider extends SocialAbstract implements SocialProvider {
   oneTimeToken = true;
 
   isBetweenSteps = false;
-  scopes = [
-    'openid',
-    'profile',
-    'w_member_social',
-    'r_basicprofile',
-    'rw_organization_admin',
-    'w_organization_social',
-    'r_organization_social',
-  ];
+  // PrimusPost fork: trimmed to the three scopes a PERSONAL post actually needs.
+  // Upstream issue #1582.
+  //
+  // Upstream also requests r_basicprofile, rw_organization_admin,
+  // w_organization_social and r_organization_social. Those come from LinkedIn's
+  // Community Management API, which is not self-serve — it requires a registered
+  // legal entity, a verified Company Page and a manual review — and it cannot
+  // coexist with "Share on LinkedIn" / "Sign In with OpenID Connect" on the same
+  // app.
+  //
+  // LinkedIn rejects the ENTIRE authorization request if any single requested
+  // scope is unavailable, so with the upstream list a self-serve app can never
+  // connect a personal account at all, no matter how it is configured.
+  //
+  // Verified on the 2026-08-15 spike: with these three, connect and publish both
+  // work. w_member_social alone is sufficient to post to a personal profile.
+  // The organisation scopes stay on linkedin.page.provider.ts, where they belong.
+  scopes = ['openid', 'profile', 'w_member_social'];
   override maxConcurrentJob = 2;
   refreshWait = true;
   editor = 'normal' as const;
@@ -149,9 +158,17 @@ export class LinkedinProvider extends SocialAbstract implements SocialProvider {
   async generateAuthUrl() {
     const state = makeId(6);
     const codeVerifier = makeId(30);
+    // PrimusPost fork: `prompt=none` removed. Upstream issue #1580.
+    //
+    // OIDC `prompt=none` means "authorise silently, show no UI". On a FIRST
+    // connection there is no prior grant to reuse, so LinkedIn cannot return a
+    // code and renders its generic "Bummer, something went wrong" page — the
+    // connect flow is impossible for every new user. Omitting the parameter
+    // restores LinkedIn's default: show consent when it is needed, skip it when
+    // the user has already granted it.
     const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${
       process.env.LINKEDIN_CLIENT_ID
-    }&prompt=none&redirect_uri=${encodeURIComponent(
+    }&redirect_uri=${encodeURIComponent(
       `${process.env.FRONTEND_URL}/integrations/social/linkedin`
     )}&state=${state}&scope=${encodeURIComponent(this.scopes.join(' '))}`;
     return {

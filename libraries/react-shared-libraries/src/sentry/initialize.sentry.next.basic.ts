@@ -1,6 +1,23 @@
 import * as Sentry from '@sentry/nextjs';
 
 export const initializeSentryBasic = (environment: string, dsn: string, extension: any) => {
+  // PrimusPost fork: Sentry is disabled unconditionally on the frontend too.
+  //
+  // This function is the chokepoint for both browser paths —
+  // initializeSentryClient delegates here — so one return covers them.
+  //
+  // The client configuration that would otherwise apply is unusually invasive:
+  // replayIntegration runs with `maskAllText: false` at
+  // replaysSessionSampleRate 1.0, i.e. full session replay of every session with
+  // on-screen text recorded. For PrimusPost that text is the customer's
+  // unpublished content. It is not ours to send anywhere.
+  //
+  // See libraries/nestjs-libraries/src/sentry/initialize.sentry.ts for the
+  // backend equivalent and why this is disabled in code rather than by
+  // configuration.
+  return;
+
+  // eslint-disable-next-line no-unreachable
   if (!dsn) {
     return;
   }

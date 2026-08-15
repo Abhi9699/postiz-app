@@ -328,6 +328,20 @@ export class PublicIntegrationsController {
   async getIntegrationUrl(
     @Param('integration') integration: string,
     @Query('refresh') refresh: string,
+    // PrimusPost fork: `customer` and `redirectUrl` accepted here.
+    //
+    // The internal controller (integrations.controller.ts) already supports a
+    // redirectUrl and the callback already consumes it
+    // (no.auth.integrations.controller.ts reads and deletes `redirect:${state}`),
+    // but the public API's copy of this handler was reduced and dropped it.
+    // Without a redirect, an API consumer cannot bring the user back to its own
+    // UI after LinkedIn consent — they are stranded on the Postiz frontend.
+    //
+    // `customer` scopes the resulting integration to a tenant of the API
+    // consumer. Postiz already models customers; it is applied in the callback
+    // via updateOnCustomerName, which finds-or-creates by name within the org.
+    @Query('customer') customer: string,
+    @Query('redirectUrl') redirectUrl: string,
     @GetOrgFromRequest() org: Organization
   ) {
     Sentry.metrics.count('public_api-request', 1);
@@ -357,6 +371,16 @@ export class PublicIntegrationsController {
 
       if (refresh) {
         await ioRedis.set(`refresh:${state}`, refresh, 'EX', 3600);
+      }
+
+      // PrimusPost fork: same 1-hour TTL and same key shape as the internal
+      // controller, so the existing callback consumes them unchanged.
+      if (redirectUrl) {
+        await ioRedis.set(`redirect:${state}`, redirectUrl, 'EX', 3600);
+      }
+
+      if (customer) {
+        await ioRedis.set(`customer:${state}`, customer, 'EX', 3600);
       }
 
       await ioRedis.set(`organization:${state}`, org.id, 'EX', 3600);

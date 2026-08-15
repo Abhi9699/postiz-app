@@ -240,6 +240,35 @@ export class NoAuthIntegrationsController {
           : undefined
       );
 
+    // PrimusPost fork: scope the new integration to the customer named when the
+    // connect URL was requested (see public.integrations.controller.ts).
+    //
+    // Applied AFTER creation because that is how customer assignment already
+    // works here — updateOnCustomerName finds-or-creates a customer by name
+    // within the organisation and connects the integration to it. Reusing that
+    // path keeps this to one call against tested plumbing rather than a second
+    // way of assigning customers.
+    //
+    // Deliberately non-fatal: the integration itself connected successfully, and
+    // failing the whole callback here would leave the user looking at an error
+    // for a channel that is in fact linked. Logged loudly instead.
+    const customerName = await ioRedis.get(`customer:${body.state}`);
+    if (customerName) {
+      await ioRedis.del(`customer:${body.state}`);
+      try {
+        await this._integrationService.updateOnCustomerName(
+          org.id,
+          createUpdate.id,
+          customerName
+        );
+      } catch (err) {
+        console.error(
+          `[primuspost] failed to assign customer "${customerName}" to integration ${createUpdate.id}`,
+          err
+        );
+      }
+    }
+
     this._refreshIntegrationService
       .startRefreshWorkflow(org.id, createUpdate.id, integrationProvider)
       .catch((err) => {

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IntegrationRepository } from '../integration.repository';
+import { encryptToken, decryptToken } from '../../token-encryption';
 
 describe('G1 Postiz Fork Credential Erasure on Delete (§A #90)', () => {
   let mockIntegrationDb: any[];
@@ -121,6 +122,26 @@ describe('G1 Postiz Fork Credential Erasure on Delete (§A #90)', () => {
       const otherOrg = mockIntegrationDb.find((i) => i.id === 'integration-other-org');
       expect(otherOrg.token).toBe('other-org-token-999');
       expect(otherOrg.refreshToken).toBe('other-org-refresh-token-888');
+    });
+  });
+
+  describe('token-encryption passthrough on nulled credentials', () => {
+    it('nulling token/refreshToken passes through encryptToken/decryptToken unchanged (token-encryption.ts:241, :288)', async () => {
+      await integrationRepo.deleteChannel('org-1', 'integration-target');
+      const target = mockIntegrationDb.find((i) => i.id === 'integration-target');
+
+      expect(target.token).toBeNull();
+      expect(target.refreshToken).toBeNull();
+
+      // encryptToken (line 241): typeof value !== 'string' returns value unchanged (null)
+      expect(await encryptToken(target.token)).toBeNull();
+      expect(await encryptToken(target.refreshToken)).toBeNull();
+      expect(await encryptToken(null)).toBeNull();
+
+      // decryptToken (line 288): !isEncrypted(value) returns value unchanged (null)
+      expect(await decryptToken(target.token)).toBeNull();
+      expect(await decryptToken(target.refreshToken)).toBeNull();
+      expect(await decryptToken(null)).toBeNull();
     });
   });
 });

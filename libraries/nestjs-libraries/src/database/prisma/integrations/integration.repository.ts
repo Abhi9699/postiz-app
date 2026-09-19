@@ -193,6 +193,10 @@ export class IntegrationRepository {
     });
   }
 
+  // disconnectChannel is also the refresh-failure path
+  // (libraries/nestjs-libraries/src/integrations/refresh.integration.service.ts:92,
+  // libraries/nestjs-libraries/src/database/prisma/posts/posts.service.ts:125);
+  // so reconnecting then needs a fresh OAuth, which is intentional (§A #90).
   disconnectChannel(org: string, id: string) {
     return this._integration.model.integration.update({
       where: {
@@ -201,6 +205,10 @@ export class IntegrationRepository {
       },
       data: {
         refreshNeeded: true,
+        token: null,
+        refreshToken: null,
+        customInstanceDetails: null,
+        tokenExpiration: null,
       },
     });
   }
@@ -538,6 +546,10 @@ export class IntegrationRepository {
       },
       data: {
         deletedAt: new Date(),
+        token: null,
+        refreshToken: null,
+        customInstanceDetails: null,
+        tokenExpiration: null,
       },
     });
   }

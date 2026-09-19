@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-08-15: remove prompt=none from OAuth authorization URL. See NOTICE.md.
 import {
   AnalyticsData,
   AuthTokenDetails,

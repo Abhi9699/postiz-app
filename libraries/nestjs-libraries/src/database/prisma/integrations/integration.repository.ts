@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-09-19: null credentials on deleteChannel and disconnectChannel (§A #90). See NOTICE.md.
 import { PrismaRepository } from '@gitroom/nestjs-libraries/database/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import dayjs from 'dayjs';

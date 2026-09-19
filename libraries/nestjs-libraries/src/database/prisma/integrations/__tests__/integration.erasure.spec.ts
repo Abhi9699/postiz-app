@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-09-19: credential erasure unit tests and encryption passthrough assertions (§A #90). See NOTICE.md.
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { IntegrationRepository } from '../integration.repository';
 import { encryptToken, decryptToken } from '../../token-encryption';

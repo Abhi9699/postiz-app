@@ -1,3 +1,4 @@
+# Modified by PrimusPost, 2026-08-15: publish fork images to ghcr.io/abhi9699/postiz-app with package write permissions. See NOTICE.md.
 ---
 # PrimusPost fork: publishes to ghcr.io/abhi9699/postiz-app rather than
 # ghcr.io/gitroomhq/postiz-app. A fork cannot push to upstream's registry, so

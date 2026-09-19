@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-08-15: scope new integration to customer named in connect state. See NOTICE.md.
 import {
   Body,
   Controller,

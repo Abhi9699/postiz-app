@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-08-15: token envelope encryption via Google Cloud KMS and AES-256-GCM. See NOTICE.md.
 /**
  * PrimusPost fork — encryption at rest for social OAuth tokens.
  *

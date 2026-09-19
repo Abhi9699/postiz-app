@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-08-15: disable frontend Sentry initialisation unconditionally. See NOTICE.md.
 import * as Sentry from '@sentry/nextjs';
 
 export const initializeSentryBasic = (environment: string, dsn: string, extension: any) => {

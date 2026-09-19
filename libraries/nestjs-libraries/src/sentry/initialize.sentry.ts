@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-08-15: disable backend Sentry initialisation unconditionally. See NOTICE.md.
 import * as Sentry from '@sentry/nestjs';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { capitalize } from 'lodash';

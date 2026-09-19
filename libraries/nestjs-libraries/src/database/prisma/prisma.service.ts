@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-08-15: transparent token envelope encryption client extension. See NOTICE.md.
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import {

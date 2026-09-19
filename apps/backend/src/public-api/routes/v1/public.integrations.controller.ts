@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-08-15: accept customer and redirectUrl query params in connect URL. See NOTICE.md.
 import {
   Body,
   Controller,

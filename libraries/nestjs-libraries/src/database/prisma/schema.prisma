@@ -319,7 +319,7 @@ model Integration {
   picture               String?
   providerIdentifier    String
   type                  String
-  token                 String
+  token                 String?
   disabled              Boolean                @default(false)
   tokenExpiration       DateTime?
   refreshToken          String?

@@ -1,3 +1,4 @@
+// Modified by PrimusPost, 2026-08-15: remove prompt=none and trim scopes to personal member posting. See NOTICE.md.
 import {
   AuthTokenDetails,
   PostDetails,

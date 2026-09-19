@@ -1,3 +1,11 @@
+# Postiz (PrimusPost Fork)
+
+> **Notice: Modified Version**  
+> This repository is a modified version of [Postiz](https://github.com/gitroomhq/postiz-app), originally created and copyrighted by its respective authors and licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](./LICENSE).  
+> Modified and maintained by PrimusPost. See [NOTICE.md](./NOTICE.md) for the complete record of modifications, commit SHAs, and dates. All modifications are also licensed under AGPL-3.0.
+
+---
+
 <p align="center">
   <a href="https://postiz.com/" target="_blank">
   <picture>

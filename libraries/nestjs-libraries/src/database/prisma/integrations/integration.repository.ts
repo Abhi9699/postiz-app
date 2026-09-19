@@ -201,6 +201,10 @@ export class IntegrationRepository {
       },
       data: {
         refreshNeeded: true,
+        token: null,
+        refreshToken: null,
+        customInstanceDetails: null,
+        tokenExpiration: null,
       },
     });
   }
@@ -538,6 +542,51 @@ export class IntegrationRepository {
       },
       data: {
         deletedAt: new Date(),
+        token: null,
+        refreshToken: null,
+        customInstanceDetails: null,
+        tokenExpiration: null,
+      },
+    });
+  }
+
+  async deleteCustomer(orgId: string, customerId: string) {
+    await this._customers.model.customer.update({
+      where: {
+        id: customerId,
+        orgId,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+
+    return this._integration.model.integration.updateMany({
+      where: {
+        organizationId: orgId,
+        customerId,
+      },
+      data: {
+        deletedAt: new Date(),
+        token: null,
+        refreshToken: null,
+        customInstanceDetails: null,
+        tokenExpiration: null,
+      },
+    });
+  }
+
+  async deleteOrganizationIntegrations(orgId: string) {
+    return this._integration.model.integration.updateMany({
+      where: {
+        organizationId: orgId,
+      },
+      data: {
+        deletedAt: new Date(),
+        token: null,
+        refreshToken: null,
+        customInstanceDetails: null,
+        tokenExpiration: null,
       },
     });
   }

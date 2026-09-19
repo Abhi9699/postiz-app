@@ -419,6 +419,15 @@ export class PublicIntegrationsController {
     return this._integrationService.deleteChannel(org.id, id);
   }
 
+  @Delete('/customers/:id')
+  async deleteCustomer(
+    @GetOrgFromRequest() org: Organization,
+    @Param('id') id: string
+  ) {
+    Sentry.metrics.count('public_api-request', 1);
+    return this._integrationService.deleteCustomer(org.id, id);
+  }
+
   @Get('/integration-settings/:id')
   async getIntegrationSettings(
     @GetOrgFromRequest() org: Organization,

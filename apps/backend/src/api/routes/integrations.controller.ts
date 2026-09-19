@@ -417,6 +417,14 @@ export class IntegrationsController {
     return this._integrationService.deleteChannel(org.id, id);
   }
 
+  @Delete('/customer/:id')
+  async deleteCustomer(
+    @GetOrgFromRequest() org: Organization,
+    @Param('id') id: string
+  ) {
+    return this._integrationService.deleteCustomer(org.id, id);
+  }
+
   @Get('/plug/list')
   async getPlugList() {
     return { plugs: this._integrationManager.getAllPlugs() };

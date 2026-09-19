@@ -10,7 +10,9 @@ export class OrganizationRepository {
   constructor(
     private _organization: PrismaRepository<'organization'>,
     private _userOrg: PrismaRepository<'userOrganization'>,
-    private _user: PrismaRepository<'user'>
+    private _user: PrismaRepository<'user'>,
+    private _integration: PrismaRepository<'integration'>,
+    private _customers: PrismaRepository<'customer'>
   ) {}
 
   createMaxUser(id: string, name: string, saasName: string, email: string) {
@@ -433,6 +435,30 @@ export class OrganizationRepository {
       },
       data: {
         shortlink,
+      },
+    });
+  }
+
+  async deleteOrganization(id: string) {
+    await this._integration.model.integration.updateMany({
+      where: {
+        organizationId: id,
+      },
+      data: {
+        deletedAt: new Date(),
+        token: null,
+        refreshToken: null,
+        customInstanceDetails: null,
+        tokenExpiration: null,
+      },
+    });
+
+    await this._customers.model.customer.updateMany({
+      where: {
+        orgId: id,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }

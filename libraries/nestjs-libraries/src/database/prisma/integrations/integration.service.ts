@@ -276,6 +276,14 @@ export class IntegrationService {
     return this._integrationRepository.deleteChannel(org, id);
   }
 
+  async deleteCustomer(orgId: string, customerId: string) {
+    return this._integrationRepository.deleteCustomer(orgId, customerId);
+  }
+
+  async deleteOrganizationIntegrations(orgId: string) {
+    return this._integrationRepository.deleteOrganizationIntegrations(orgId);
+  }
+
   async disableIntegrations(org: string, totalChannels: number) {
     return this._integrationRepository.disableIntegrations(org, totalChannels);
   }

@@ -191,7 +191,4 @@ export class OrganizationService {
       shortlink
     );
   }
-  async deleteOrganization(id: string) {
-    return this._organizationRepository.deleteOrganization(id);
-  }
 }

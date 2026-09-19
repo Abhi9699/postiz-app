@@ -193,6 +193,10 @@ export class IntegrationRepository {
     });
   }
 
+  // disconnectChannel is also the refresh-failure path
+  // (libraries/nestjs-libraries/src/integrations/refresh.integration.service.ts:92,
+  // libraries/nestjs-libraries/src/database/prisma/posts/posts.service.ts:125);
+  // so reconnecting then needs a fresh OAuth, which is intentional (§A #90).
   disconnectChannel(org: string, id: string) {
     return this._integration.model.integration.update({
       where: {
@@ -539,47 +543,6 @@ export class IntegrationRepository {
       where: {
         id,
         organizationId: org,
-      },
-      data: {
-        deletedAt: new Date(),
-        token: null,
-        refreshToken: null,
-        customInstanceDetails: null,
-        tokenExpiration: null,
-      },
-    });
-  }
-
-  async deleteCustomer(orgId: string, customerId: string) {
-    await this._customers.model.customer.update({
-      where: {
-        id: customerId,
-        orgId,
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
-
-    return this._integration.model.integration.updateMany({
-      where: {
-        organizationId: orgId,
-        customerId,
-      },
-      data: {
-        deletedAt: new Date(),
-        token: null,
-        refreshToken: null,
-        customInstanceDetails: null,
-        tokenExpiration: null,
-      },
-    });
-  }
-
-  async deleteOrganizationIntegrations(orgId: string) {
-    return this._integration.model.integration.updateMany({
-      where: {
-        organizationId: orgId,
       },
       data: {
         deletedAt: new Date(),

@@ -22,6 +22,7 @@ In compliance with AGPL-3.0 §5(a), the following modifications have been made r
 | 2026-08-15 | `1c9781d8` (`b6722ebd`) | fix(security): decrypt tokens on nested relations, not just direct queries |
 | 2026-09-19 | `2d4285a8` (`8b89f1ea`) | fix(security): null credentials on delete/disconnect (§A #90) |
 | 2026-09-19 | `93ab1236` (`7572e7c6`) | test(security): assert token-encryption passthrough for nulled credentials (§A #90) |
+| 2026-11-13 | `4fc63166` | fix(linkedin): send LinkedIn-Version 202601 on the first-comment call (202306 is sunset) |
 
 ## Modified Files Not Supporting Source Comments
 

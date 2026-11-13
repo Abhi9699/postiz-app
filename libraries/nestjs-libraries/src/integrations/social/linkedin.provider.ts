@@ -1,4 +1,4 @@
-// Modified by PrimusPost, 2026-08-15: remove prompt=none and trim scopes to personal member posting. See NOTICE.md.
+// Modified by PrimusPost, 2026-08-15: remove prompt=none and trim scopes to personal member posting. 2026-11-13: first-comment call uses LinkedIn-Version 202601 (202306 is sunset). See NOTICE.md.
 import {
   AuthTokenDetails,
   PendingCheckResponse,
@@ -814,7 +814,7 @@ export class LinkedinProvider extends SocialAbstract implements SocialProvider {
       {
         method: 'POST',
         headers: {
-        'LinkedIn-Version': '202306',
+        'LinkedIn-Version': '202601',
         'X-Restli-Protocol-Version': '2.0.0',
         'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
